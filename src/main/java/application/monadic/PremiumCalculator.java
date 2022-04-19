@@ -18,6 +18,9 @@ public class PremiumCalculator {
     static Function<? super Client,Provenanced<Boolean>> isHighRiskDriver =
         or(isYoungDriver,hasDUIConviction);
 
+
+    // bind is not very intuitive, and the last bind is somehow different
+    // @TODO find more descriptive names
     static Function<? super Client,Provenanced<Integer>> calculatePremium1 =
         client ->
             Provenanced.of(client)

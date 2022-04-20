@@ -29,31 +29,31 @@ public class Provenanced<T> {
         return result;
     }
 
-    public Provenanced<Boolean> bindFirst(Function<? super T,Provenanced<Boolean>>... mappers) {
-        if (mappers.length==0) {
-            throw new IllegalArgumentException("At least one mapper must be present");
-        }
-        for (Function<? super T,Provenanced<Boolean>> mapper:mappers) {
-            Provenanced<Boolean> result = mapper.apply(this.value);
-            if (result.hasValue() && result.getValue()) {
-                result.getProvenanceInfo().addParent(this.provenanceInfo);
-                return result;
-            }
-        }
-        return Provenanced.of(false);
-    }
+//    public Provenanced<Boolean> bindFirst(Function<? super T,Provenanced<Boolean>>... mappers) {
+//        if (mappers.length==0) {
+//            throw new IllegalArgumentException("At least one mapper must be present");
+//        }
+//        for (Function<? super T,Provenanced<Boolean>> mapper:mappers) {
+//            Provenanced<Boolean> result = mapper.apply(this.value);
+//            if (result.hasValue() && result.getValue()) {
+//                result.getProvenanceInfo().addParent(this.provenanceInfo);
+//                return result;
+//            }
+//        }
+//        return Provenanced.of(false);
+//    }
 
-    public Provenanced<Boolean> orElse(Function<? super T,Provenanced<Boolean>> mapper) {
-        // TODO enforce precond that this is Provenanced<Boolean>
-        if (!this.hasValue() || this.getValue()==Boolean.FALSE) {
-            Provenanced<Boolean> result = mapper.apply(this.value);
-            if (result.hasValue() && result.getValue()) {
-                result.getProvenanceInfo().addParent(this.provenanceInfo);
-                return result;
-            }
-        }
-        return (Provenanced<Boolean>)this;
-    }
+//    public Provenanced<Boolean> orElse(Function<? super T,Provenanced<Boolean>> mapper) {
+//        // TODO enforce precond that this is Provenanced<Boolean>
+//        if (!this.hasValue() || this.getValue()==Boolean.FALSE) {
+//            Provenanced<Boolean> result = mapper.apply(this.value);
+//            if (result.hasValue() && result.getValue()) {
+//                result.getProvenanceInfo().addParent(this.provenanceInfo);
+//                return result;
+//            }
+//        }
+//        return (Provenanced<Boolean>)this;
+//    }
 
     public T getValue() {
         return this.value;
@@ -71,7 +71,7 @@ public class Provenanced<T> {
         return provenanceInfo;
     }
 
-    public Provenanced<T> addProvenance(String key,String value) {
+    public Provenanced<T> withProvenance(String key, String value) {
         this.provenanceInfo.put(key,value);
         return this;
     }

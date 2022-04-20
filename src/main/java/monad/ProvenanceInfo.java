@@ -3,6 +3,9 @@ package monad;
 import java.io.PrintStream;
 import java.util.*;
 
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableSet;
+
 public class ProvenanceInfo {
     private Map<String,String> data = new HashMap<>();
     private List<ProvenanceInfo> parents = new ArrayList<>();
@@ -27,6 +30,8 @@ public class ProvenanceInfo {
         return new ProvenanceInfo(map,parents);
     }
 
+    public Set<String> getKeys() {return unmodifiableSet(data.keySet());}
+
     public boolean containsKey(Object key) {
         return data.containsKey(key);
     }
@@ -40,7 +45,7 @@ public class ProvenanceInfo {
     }
 
     public List<ProvenanceInfo> getParents() {
-        return Collections.unmodifiableList(parents);
+        return unmodifiableList(parents);
     }
 
     public boolean addParent(ProvenanceInfo provenance) {

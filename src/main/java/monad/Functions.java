@@ -11,7 +11,7 @@ public class Functions {
                 if (result.hasValue()) {
                     // wrap again as this is application of a rule
                     return Provenanced.of(result.getValue())
-                        .addProvenance("rule","Functions::or")
+                        .withProvenance("rule","Functions::or")
                         .addParent(result.getProvenanceInfo());
                 }
             }

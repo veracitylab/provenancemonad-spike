@@ -10,40 +10,21 @@ import static monad.Functions.or;
 public class PremiumCalculator {
 
     static Function<? super Client,Provenanced<Boolean>> isYoungDriver =
-        client -> Provenanced.of(client.getAge()<=21).addProvenance("rule","PremiumCalculator::isYoungDriver");
+        client -> Provenanced.of(client.getAge()<=21).withProvenance("rule","PremiumCalculator::isYoungDriver");
 
-    static Function<? super Client,Provenanced<Boolean>> hasDUIConviction =
-        client -> Provenanced.of(client.isDUIConviction()).addProvenance("rule","PremiumCalculator::hasDUIConviction");
+    static Function<? super Client,Provenanced<Integer>> defaultPremium =
+        client -> Provenanced.of(200).withProvenance("rule","PremiumCalculator::defaultPremium");
 
-    static Function<? super Client,Provenanced<Boolean>> isHighRiskDriver =
-        or(isYoungDriver,hasDUIConviction);
-
-
-    // bind is not very intuitive, and the last bind is somehow different
-    // @TODO find more descriptive names
-    static Function<? super Client,Provenanced<Integer>> calculatePremium1 =
+    static Function<? super Client,Provenanced<Integer>> premiumForYoungDrivers =
         client ->
             Provenanced.of(client)
-            .bind(isHighRiskDriver)
+            .bind(isYoungDriver)
             .bind(v -> Provenanced.of(v?300:null))
-            .addProvenance("rule","PremiumCalculator::calculatePremium1");
+            .withProvenance("rule","PremiumCalculator::premiumForYoungDrivers");
 
-    static Function<? super Client,Provenanced<Integer>> calculatePremium2 =
-        client ->
-            Provenanced.of(client)
-            .bind(isHighRiskDriver)
-            .bind(v -> Provenanced.of(v?100:null))
-            .addProvenance("rule","PremiumCalculator::calculatePremium1");
-
-    static Function<? super Client,Provenanced<Integer>> calculatePremium =
-        or(calculatePremium1,calculatePremium2);
+    // construct necessary to apply multiple alternative rules , basically some form of backtracking
+    // if premiumForYoungDrivers cannot be applied, i.e. yields a value Provenanced.NULL , then defaultPremium will be applied
+    static Function<? super Client,Provenanced<Integer>> calculatePremium = or(premiumForYoungDrivers,defaultPremium);
 
 
-    private static Provenanced<Boolean> isYoungDriver(Client client) {
-        return Provenanced.of(client.getAge() <= 21, ProvenanceInfo.with("rule","PremiumCalculator::isYoungDriver"));
-    }
-
-    private static Provenanced<Boolean> isHighRiskDriver(Client client) {
-        return Provenanced.of(client).bind(isYoungDriver);
-    }
 }

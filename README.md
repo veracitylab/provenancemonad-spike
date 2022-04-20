@@ -1,6 +1,8 @@
 # Provenance Monad Spike
 
-Exploration of the notion of a provenance monad. See example code in the `application.monadic` package. 
+Exploration of the notion of a provenance monad. See example code in the `application.monadic` package. A `Provenanced` monad wraps computed values and adds 
+`ProvenanceInfo` -- a rather general data structure consisting of a flat key-value map (i.e. both keys and values are strings) and a reference to parent 
+instances of `ProvenanceInfo`. `Provenanced::bind` (aka flatMap function) composes provenance by transparently adding a parent reference.  
 
 ## Notes
 

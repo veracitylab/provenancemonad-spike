@@ -1,6 +1,8 @@
 package monad;
 
+import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class Provenanced<T> {
 
@@ -23,37 +25,41 @@ public class Provenanced<T> {
         this.provenanceInfo = provenanceInfo;
     }
 
+
     public <U> Provenanced<U> bind(Function<? super T,Provenanced<U>> mapper) {
-        Provenanced result = mapper.apply(this.value);
+        Provenanced<U> result = mapper.apply(this.value);
         result.getProvenanceInfo().addParent(this.provenanceInfo);
         return result;
     }
 
-//    public Provenanced<Boolean> bindFirst(Function<? super T,Provenanced<Boolean>>... mappers) {
-//        if (mappers.length==0) {
-//            throw new IllegalArgumentException("At least one mapper must be present");
-//        }
-//        for (Function<? super T,Provenanced<Boolean>> mapper:mappers) {
-//            Provenanced<Boolean> result = mapper.apply(this.value);
-//            if (result.hasValue() && result.getValue()) {
-//                result.getProvenanceInfo().addParent(this.provenanceInfo);
-//                return result;
-//            }
-//        }
-//        return Provenanced.of(false);
-//    }
+    // syntactic sugar
+    public <Boolean> Provenanced<Boolean> when(Function<? super T,Provenanced<Boolean>> mapper) {
+        return bind(mapper);
+    }
 
-//    public Provenanced<Boolean> orElse(Function<? super T,Provenanced<Boolean>> mapper) {
-//        // TODO enforce precond that this is Provenanced<Boolean>
-//        if (!this.hasValue() || this.getValue()==Boolean.FALSE) {
-//            Provenanced<Boolean> result = mapper.apply(this.value);
-//            if (result.hasValue() && result.getValue()) {
-//                result.getProvenanceInfo().addParent(this.provenanceInfo);
-//                return result;
-//            }
-//        }
-//        return (Provenanced<Boolean>)this;
-//    }
+    public <T> Provenanced<T> then(Supplier<Provenanced<T>> supplier) {
+        assert this.value instanceof Boolean;
+        if (this.value==Boolean.TRUE) {
+            Provenanced<T> result = supplier.get();
+            result.getProvenanceInfo().addParent(this.provenanceInfo);
+            return result;
+        }
+        else {
+            Provenanced<T> result = Provenanced.of(null);
+            result.getProvenanceInfo().addParent(this.provenanceInfo);
+            return result;
+        }
+    }
+
+    public <T> Provenanced<T> orElse(Supplier<Provenanced<T>> supplier) {
+        Provenanced<T> result = supplier.get();
+        // add parents
+        for (ProvenanceInfo pi:this.provenanceInfo.getParents()) {
+            result.addParent(pi);
+        }
+        return result;
+    }
+
 
     public T getValue() {
         return this.value;
@@ -79,5 +85,20 @@ public class Provenanced<T> {
     public Provenanced<T> addParent(ProvenanceInfo provenance) {
         this.provenanceInfo.addParent(provenance);
         return this;
+    }
+
+
+    // equality is only based on value, not provenance here
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Provenanced<?> that = (Provenanced<?>) o;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
     }
 }
